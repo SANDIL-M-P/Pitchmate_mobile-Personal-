@@ -12,7 +12,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   static const Color primaryYellow = Color(0xFFF5A623);
-  static const Color bgBlack = Colors.black;
+  static const Color darkBackground = Color(0xFF1A1A1A);
+  static const Color lightBackground = Color(0xFFF5F5F5);
 
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
@@ -22,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isLoading = false;
   bool _obscureText = true;
+  bool _showPasswordPeek = false;
 
   @override
   void dispose() {
@@ -38,9 +40,14 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
       setState(() => _isLoading = false);
+
       if (isSuccess) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const MainNav()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login failed. Please try again')),
         );
       }
     }
@@ -48,173 +55,244 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color backgroundColor = isDark ? bgBlack : Colors.white;
-    final Color textColor = isDark ? Colors.white : Colors.black;
-    final Color labelColor = isDark ? Colors.white : Colors.black;
-    final Color borderColor = isDark ? Colors.white70 : Colors.grey;
-    final Color buttonTextColor = isDark ? Colors.black : Colors.white;
-
-    final Gradient backgroundGradient = isDark
-        ? LinearGradient(
-            colors: [Colors.black, Colors.grey[900]!],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          )
-        : LinearGradient(
-            colors: [Colors.white, Colors.grey[200]!],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          );
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final inputFillColor = isDarkMode ? darkBackground : Colors.white;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(gradient: backgroundGradient),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Logo using asset image instead of icon.
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: primaryYellow.withOpacity(0.2),
-                        backgroundImage:
-                            const AssetImage('lib/images/pitchmate-logo.png'),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Welcome!',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: primaryYellow,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Sign in to continue to your profile',
-                        style: TextStyle(fontSize: 16, color: textColor),
-                      ),
-                      const SizedBox(height: 24),
-                      // Username field
-                      TextFormField(
-                        controller: _usernameController,
-                        style: TextStyle(color: textColor),
-                        decoration: InputDecoration(
-                          labelText: 'Username',
-                          labelStyle: TextStyle(color: labelColor),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: borderColor),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: primaryYellow),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) => (value == null || value.isEmpty)
-                            ? 'Please enter your username'
-                            : null,
-                        textInputAction: TextInputAction.next,
-                      ),
-                      const SizedBox(height: 16),
-                      // Password field with show/hide toggle
-                      TextFormField(
-                        controller: _passwordController,
-                        style: TextStyle(color: textColor),
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: TextStyle(color: labelColor),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: borderColor),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: primaryYellow),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscureText
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                              color: textColor,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscureText = !_obscureText;
-                              });
-                            },
-                          ),
-                        ),
-                        obscureText: _obscureText,
-                        validator: (value) => (value == null || value.isEmpty)
-                            ? 'Please enter your password'
-                            : null,
-                      ),
-                      const SizedBox(height: 24),
-                      // Login button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _onLoginPressed,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryYellow,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: _isLoading
-                              ? const CircularProgressIndicator(
-                                  valueColor:
-                                      AlwaysStoppedAnimation(Colors.black),
-                                )
-                              : Text(
-                                  'Log In',
-                                  style: TextStyle(color: buttonTextColor),
-                                ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Forgot password link
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const ForgotPasswordScreen()),
-                          );
-                        },
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(color: primaryYellow),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+      backgroundColor: isDarkMode ? darkBackground : lightBackground,
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          padding: const EdgeInsets.all(24),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: _isLoading
+                ? _buildLoadingIndicator()
+                : _buildLoginForm(isDarkMode, inputFillColor),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation(primaryYellow),
+          strokeWidth: 3,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Authenticating...',
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyLarge?.color,
+            fontSize: 16,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoginForm(bool isDarkMode, Color inputFillColor) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(
+          color: isDarkMode ? Colors.white12 : Colors.grey[300]!,
+          width: 1.5,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildLogo(),
+              const SizedBox(height: 24),
+              _buildWelcomeText(),
+              const SizedBox(height: 24),
+              _buildUsernameField(inputFillColor),
+              const SizedBox(height: 16),
+              _buildPasswordField(inputFillColor),
+              const SizedBox(height: 24),
+              _buildLoginButton(),
+              const SizedBox(height: 16),
+              _buildForgotPasswordLink(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogo() {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: primaryYellow.withOpacity(0.15),
+        image: const DecorationImage(
+          image: AssetImage('lib/images/pitchmate-logo.png'),
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWelcomeText() {
+    return Column(
+      children: [
+        Text(
+          'Welcome Back!',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: primaryYellow,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Sign in to access your account',
+          style: TextStyle(
+            fontSize: 16,
+            color:
+                Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUsernameField(Color fillColor) {
+    return TextFormField(
+      controller: _usernameController,
+      style: const TextStyle(fontSize: 16),
+      decoration: InputDecoration(
+        labelText: 'Username',
+        labelStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
+        ),
+        filled: true,
+        fillColor: fillColor,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: primaryYellow, width: 2),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+      validator: (value) =>
+          (value == null || value.isEmpty) ? 'Username is required' : null,
+      textInputAction: TextInputAction.next,
+    );
+  }
+
+  Widget _buildPasswordField(Color fillColor) {
+    return StatefulBuilder(
+      builder: (context, setState) => TextFormField(
+        controller: _passwordController,
+        style: const TextStyle(fontSize: 16),
+        obscureText: !_showPasswordPeek && _obscureText,
+        decoration: InputDecoration(
+          labelText: 'Password',
+          labelStyle: TextStyle(
+            color:
+                Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
+          ),
+          filled: true,
+          fillColor: fillColor,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: primaryYellow, width: 2),
+          ),
+          suffixIcon: GestureDetector(
+            onTap: () => setState(() => _showPasswordPeek = !_showPasswordPeek),
+            onLongPress: () => setState(() => _obscureText = false),
+            onLongPressEnd: (_) => setState(() => _obscureText = true),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                _showPasswordPeek || !_obscureText
+                    ? Icons.visibility
+                    : Icons.visibility_off,
+                color: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.color
+                    ?.withOpacity(0.6),
+                size: 20,
               ),
             ),
           ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+        validator: (value) =>
+            (value == null || value.isEmpty) ? 'Password is required' : null,
+      ),
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _onLoginPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryYellow,
+          foregroundColor: Colors.black,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 2,
+          shadowColor: Colors.black.withOpacity(0.1),
+        ),
+        child: const Text(
+          'Login',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.5,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForgotPasswordLink() {
+    return TextButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+        );
+      },
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Text(
+        'Forgot Password?',
+        style: TextStyle(
+          color: primaryYellow,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
