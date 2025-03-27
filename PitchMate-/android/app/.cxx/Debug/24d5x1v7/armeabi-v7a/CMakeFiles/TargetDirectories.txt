@@ -1,0 +1,2 @@
+/Users/Shared/Files From e.localized/Sandil/SDGP/PitchMate-/android/app/.cxx/Debug/24d5x1v7/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/Shared/Files From e.localized/Sandil/SDGP/PitchMate-/android/app/.cxx/Debug/24d5x1v7/armeabi-v7a/CMakeFiles/rebuild_cache.dir
